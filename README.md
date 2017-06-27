@@ -11,8 +11,10 @@ Okay, so some of these aren't technically implemented yet but they *will* be fea
 - Product Variations (color, size, etc)
 - Orders
 - Cart
+- Receipts
 - Auth (w/ multiple providers)
 - Stripe
+- SMS
 
 This is a WIP.
 
