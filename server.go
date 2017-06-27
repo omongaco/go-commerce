@@ -7,38 +7,63 @@ import (
 
 	"github.com/iamclaytonray/go-commerce/controllers"
 	"github.com/julienschmidt/httprouter"
+	"github.com/rs/cors"
 	mgo "gopkg.in/mgo.v2"
 )
 
 func main() {
+	// Create a new router
 	r := httprouter.New()
 
+	// Create a new CORS configuration
+	c := cors.New(cors.Options{
+		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+	})
+
+	// Store the router in our CORS handler
+	h := c.Handler(r)
+
+	// Grab our controllers and get the MongoDB session
 	uc := controllers.NewUserController(getSession())
 	pc := controllers.NewProductController(getSession())
 
 	/* API routes/endpoints */
 
-	// Users
+	// User API Endpoints
+	r.GET("/api/v1/users", uc.GetUsers)
+	r.GET("/api/v1/users/:id", uc.GetUser)
+	r.PUT("/api/v1/users/:id", uc.UpdateUser)
 	r.POST("/api/v1/users", uc.CreateUser)
+	r.DELETE("/api/v1/users/:id", uc.DeleteUser)
 
-	// Products
+	// Product API Endpoints
+	r.GET("/api/v1/products", pc.GetProducts)
+	r.GET("/api/v1/products/:id", pc.GetProduct)
 	r.POST("/api/v1/products", pc.CreateProduct)
 
+	// Print that the server is listening and start the server on :3000
 	fmt.Println("Server up")
-	log.Fatal(http.ListenAndServe(":3000", r))
+	log.Fatal(http.ListenAndServe(":3000", logger(h)))
 
 }
 
 // getSession creates a new mongo session and panics if connection error occurs
 func getSession() *mgo.Session {
-	// Connect to our local mongo
-	s, err := mgo.Dial("mongodb://localhost")
+	// Connect to our MongoDB URI
+	s, err := mgo.Dial("localhost")
 
-	// Check if connection error, is mongo running?
+	// Can a successful connection be made to Mongo? If not, panic at the disco :p
 	if err != nil {
 		panic(err)
 	}
 
-	// Deliver session
+	// Return the session
 	return s
+}
+
+func logger(handler http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.Printf("%s %s %s", r.RemoteAddr, r.Method, r.URL)
+		handler.ServeHTTP(w, r)
+	})
 }
