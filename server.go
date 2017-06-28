@@ -17,7 +17,7 @@ func main() {
 
 	// Create a new CORS configuration
 	c := cors.New(cors.Options{
-		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedMethods: []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
 	})
 
 	// Store the router in our CORS handler
@@ -31,18 +31,20 @@ func main() {
 
 	// User API Endpoints
 	r.GET("/api/v1/users", uc.GetUsers)
-	r.GET("/api/v1/users/:id", uc.GetUser)
-	r.PUT("/api/v1/users/:id", uc.UpdateUser)
+	r.GET("/api/v1/users/:username", uc.GetUser)
 	r.POST("/api/v1/users", uc.CreateUser)
-	r.DELETE("/api/v1/users/:id", uc.DeleteUser)
+	r.PUT("/api/v1/users/:username", uc.UpdateUser)
+	r.DELETE("/api/v1/users/:username", uc.DeleteUser)
 
 	// Product API Endpoints
 	r.GET("/api/v1/products", pc.GetProducts)
-	r.GET("/api/v1/products/:id", pc.GetProduct)
+	r.GET("/api/v1/products/:slug", pc.GetProduct)
 	r.POST("/api/v1/products", pc.CreateProduct)
+	r.PUT("/api/v1/products/:slug", pc.UpdateProduct)
+	r.DELETE("/api/v1/products/:slug", pc.DeleteProduct)
 
 	// Print that the server is listening and start the server on :3000
-	fmt.Println("Server up")
+	fmt.Printf("Server up\n")
 	log.Fatal(http.ListenAndServe(":3000", logger(h)))
 
 }

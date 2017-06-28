@@ -38,20 +38,13 @@ func (pc ProductController) GetProducts(w http.ResponseWriter, r *http.Request, 
 	fmt.Fprintf(w, "%s\n", uj)
 }
 
-// GetProduct finds a Product with a specified ID
+// GetProduct finds a Product with specified slug params
 func (pc ProductController) GetProduct(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	c := pc.session.DB("go-commerce").C("products")
-	id := p.ByName("id")
+	s := p.ByName("slug")
 	pm := models.Product{}
 
-	if !bson.IsObjectIdHex(id) {
-		w.WriteHeader(404)
-		return
-	}
-
-	oid := bson.ObjectIdHex(id)
-
-	c.FindId(oid).One(&pm)
+	c.Find(bson.M{"slug": s}).One(&pm)
 
 	uj, _ := json.Marshal(pm)
 
@@ -76,4 +69,33 @@ func (pc ProductController) CreateProduct(w http.ResponseWriter, r *http.Request
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(201)
 	fmt.Fprintf(w, "%s", uj)
+}
+
+// UpdateProduct will PUT the Product based on the slug params
+func (pc ProductController) UpdateProduct(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	c := pc.session.DB("go-commerce").C("products")
+	// pm := models.Product{}
+	s := p.ByName("slug")
+
+	if err := c.Update(bson.M{"slug": s}, r.Body); err != nil {
+		w.WriteHeader(404)
+		return
+	}
+
+	w.WriteHeader(200)
+
+}
+
+// DeleteProduct will delete a Product document from the MongoDB collection based on the slug params
+func (pc ProductController) DeleteProduct(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	c := pc.session.DB("go-commerce").C("products")
+	s := p.ByName("slug")
+
+	if err := c.Remove(bson.M{"slug": s}); err != nil {
+		w.WriteHeader(404)
+		return
+	}
+
+	w.WriteHeader(204)
+
 }
