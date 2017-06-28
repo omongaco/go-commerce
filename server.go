@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 
@@ -18,6 +17,7 @@ func main() {
 	// Create a new CORS configuration
 	c := cors.New(cors.Options{
 		AllowedMethods: []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
+		AllowedOrigins: []string{"http://localhost:3000", "http://localhost:8080"},
 	})
 
 	// Store the router in our CORS handler
@@ -44,7 +44,7 @@ func main() {
 	r.DELETE("/api/v1/products/:slug", pc.DeleteProduct)
 
 	// Print that the server is listening and start the server on :3000
-	fmt.Printf("Server up\n")
+	log.Print("Server listening on :3000")
 	log.Fatal(http.ListenAndServe(":3000", logger(h)))
 
 }

@@ -1,10 +1,16 @@
 package models
 
-import "gopkg.in/mgo.v2/bson"
+import (
+	"time"
+
+	"gopkg.in/mgo.v2/bson"
+)
 
 // User models our data for the database
 type User struct {
 	ID               bson.ObjectId `json:"id" bson:"_id"`
+	CreatedAt        time.Time     `json:"created_at" bson:"created_at"`
+	UpdatedAt        time.Time     `json:"updated_at" bson:"updated_at"`
 	FirstName        string        `json:"first_name" bson:"first_name"`
 	LastName         string        `json:"last_name" bson:"last_name"`
 	Email            string        `json:"email" bson:"email"`
