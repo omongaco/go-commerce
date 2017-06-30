@@ -77,7 +77,7 @@ func (uc UserController) CreateUser(w http.ResponseWriter, r *http.Request, _ ht
 	fmt.Fprintf(w, "%s", uj)
 }
 
-// UpdateUser will update a single user with a matching ID as the parameter
+// UpdateUser will update a single user with a matching slug as the parameter
 func (uc UserController) UpdateUser(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	c := uc.session.DB("go-commerce").C("users")
 	username := p.ByName("username")

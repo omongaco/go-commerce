@@ -75,7 +75,7 @@ func (pc ProductController) CreateProduct(w http.ResponseWriter, r *http.Request
 func (pc ProductController) UpdateProduct(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	c := pc.session.DB("go-commerce").C("products")
 	slug := p.ByName("slug")
-	pm := models.User{}
+	pm := models.Product{}
 
 	json.NewDecoder(r.Body)
 
