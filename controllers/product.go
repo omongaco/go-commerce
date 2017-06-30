@@ -35,16 +35,16 @@ func (pc ProductController) GetProducts(w http.ResponseWriter, r *http.Request, 
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(200)
-	fmt.Fprintf(w, "%s\n", uj)
+	fmt.Fprintf(w, "%s", uj)
 }
 
 // GetProduct finds a Product with specified slug params
 func (pc ProductController) GetProduct(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	c := pc.session.DB("go-commerce").C("products")
-	s := p.ByName("slug")
+	slug := p.ByName("slug")
 	pm := models.Product{}
 
-	c.Find(bson.M{"slug": s}).One(&pm)
+	c.Find(bson.M{"slug": slug}).One(&pm)
 
 	uj, _ := json.Marshal(pm)
 
@@ -74,24 +74,36 @@ func (pc ProductController) CreateProduct(w http.ResponseWriter, r *http.Request
 // UpdateProduct will PUT the Product based on the slug params
 func (pc ProductController) UpdateProduct(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	c := pc.session.DB("go-commerce").C("products")
-	// pm := models.Product{}
-	s := p.ByName("slug")
+	slug := p.ByName("slug")
+	pm := models.User{}
 
-	if err := c.Update(bson.M{"slug": s}, r.Body); err != nil {
+	json.NewDecoder(r.Body)
+
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&pm)
+
+	if err != nil {
+		panic(err)
+	}
+
+	if err = c.Update(bson.M{"slug": slug}, &pm); err != nil {
 		w.WriteHeader(404)
 		return
 	}
 
-	w.WriteHeader(200)
+	uj, _ := json.Marshal(pm)
 
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	fmt.Fprintf(w, "%s", uj)
 }
 
 // DeleteProduct will delete a Product document from the MongoDB collection based on the slug params
 func (pc ProductController) DeleteProduct(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	c := pc.session.DB("go-commerce").C("products")
-	s := p.ByName("slug")
+	slug := p.ByName("slug")
 
-	if err := c.Remove(bson.M{"slug": s}); err != nil {
+	if err := c.Remove(bson.M{"slug": slug}); err != nil {
 		w.WriteHeader(404)
 		return
 	}

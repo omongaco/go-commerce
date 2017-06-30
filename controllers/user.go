@@ -35,7 +35,7 @@ func (uc UserController) GetUsers(w http.ResponseWriter, r *http.Request, _ http
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(200)
-	fmt.Fprintf(w, "%s\n", uj)
+	fmt.Fprintf(w, "%s", uj)
 }
 
 // GetUser finds a User with a specified ID
@@ -65,7 +65,10 @@ func (uc UserController) CreateUser(w http.ResponseWriter, r *http.Request, _ ht
 
 	um.ID = bson.NewObjectId()
 
-	c.Insert(um)
+	if err := c.Insert(um); err != nil {
+		w.WriteHeader(404)
+		return
+	}
 
 	uj, _ := json.Marshal(um)
 
@@ -77,14 +80,24 @@ func (uc UserController) CreateUser(w http.ResponseWriter, r *http.Request, _ ht
 // UpdateUser will update a single user with a matching ID as the parameter
 func (uc UserController) UpdateUser(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	c := uc.session.DB("go-commerce").C("users")
-	u := models.User{}
-	id := p.ByName("id")
+	username := p.ByName("username")
+	um := models.User{}
 
-	if err := c.UpdateId(id, r.Body); err != nil {
-		w.WriteHeader(404)
+	json.NewDecoder(r.Body)
+
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&um)
+
+	if err != nil {
+		panic(err)
 	}
 
-	uj, _ := json.Marshal(u)
+	if err = c.Update(bson.M{"username": username}, &um); err != nil {
+		w.WriteHeader(404)
+		return
+	}
+
+	uj, _ := json.Marshal(um)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(200)
@@ -95,18 +108,6 @@ func (uc UserController) UpdateUser(w http.ResponseWriter, r *http.Request, p ht
 func (uc UserController) DeleteUser(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	c := uc.session.DB("go-commerce").C("users")
 	username := p.ByName("username")
-
-	// if !bson.M{"slug": slug} {
-	// 	w.WriteHeader(404)
-	// 	return
-	// }
-
-	// if !bson.IsObjectIdHex(id) {
-	// 	w.WriteHeader(404)
-	// 	return
-	// }
-
-	// oid := bson.M(id)
 
 	if err := c.Remove(bson.M{"username": username}); err != nil {
 		w.WriteHeader(404)
