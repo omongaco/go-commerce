@@ -7,3 +7,6 @@ type Review struct {
 	ID   bson.ObjectId `json:"id" bson:"id"`
 	Text string        `json:"text" bson:"text"`
 }
+
+// Reviews are a slice of Review
+type Reviews []Review

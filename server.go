@@ -7,7 +7,6 @@ import (
 
 	"github.com/iamclaytonray/go-commerce/controllers"
 	"github.com/julienschmidt/httprouter"
-	"github.com/rs/cors"
 	mgo "gopkg.in/mgo.v2"
 )
 
@@ -16,21 +15,26 @@ func main() {
 	r := httprouter.New()
 
 	// Create a new CORS configuration
-	c := cors.New(cors.Options{
-		AllowedMethods: []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
-		AllowedOrigins: []string{"http://localhost:3000", "http://localhost:8080"},
-		AllowedHeaders: []string{""},
-		MaxAge:         1000,
-	})
+	// c := cors.New(cors.Options{
+	// 	AllowedMethods: []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
+	// 	AllowedOrigins: []string{"http://localhost:3000", "http://localhost:8080"},
+	// })
 
 	// Store the router in our CORS handler
-	h := c.Handler(r)
+	// h := c.Handler(r)
 
 	// Grab our controllers and get the MongoDB session
+	oc := controllers.NewOrderController(getSession())
 	uc := controllers.NewUserController(getSession())
 	pc := controllers.NewProductController(getSession())
 
 	/* API routes/endpoints */
+
+	// Order API Endpoints
+	r.GET("/api/v1/orders", oc.GetOrders)
+	r.GET("/api/v1/orders/:slug", oc.GetOrder)
+	r.POST("/api/v1/orders", oc.CreateOrder)
+	r.PUT("/api/v1/orders/:slug", oc.UpdateOrder)
 
 	// User API Endpoints
 	r.GET("/api/v1/users", uc.GetUsers)
@@ -48,7 +52,7 @@ func main() {
 
 	// Print that the server is listening and start the server on :3000
 	fmt.Printf("Server listening on :3000\n")
-	log.Fatal(http.ListenAndServe(":3000", logger(h)))
+	log.Fatal(http.ListenAndServe(":3000", logger(r)))
 
 }
 

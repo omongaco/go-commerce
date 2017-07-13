@@ -53,7 +53,7 @@ func (uc UserController) GetUser(w http.ResponseWriter, r *http.Request, p httpr
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(200)
-	fmt.Fprintf(w, "%s\n", uj)
+	fmt.Fprintf(w, "%s", uj)
 }
 
 // CreateUser inserts a new User Collection into MongoDB
@@ -77,16 +77,13 @@ func (uc UserController) CreateUser(w http.ResponseWriter, r *http.Request, _ ht
 	fmt.Fprintf(w, "%s", uj)
 }
 
-// UpdateUser will update a single user with a matching slug as the parameter
+// UpdateUser will update a single User with a matching slug as the parameter
 func (uc UserController) UpdateUser(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	c := uc.session.DB("go-commerce").C("users")
 	username := p.ByName("username")
 	um := models.User{}
 
-	json.NewDecoder(r.Body)
-
-	decoder := json.NewDecoder(r.Body)
-	err := decoder.Decode(&um)
+	err := json.NewDecoder(r.Body).Decode(&um)
 
 	if err != nil {
 		panic(err)

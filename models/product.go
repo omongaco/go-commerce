@@ -21,7 +21,7 @@ type Product struct {
 	Price         float64       `json:"price" bson:"price"`
 	Subtotal      float64       `json:"subtotal" bson:"subtotal"`
 	Total         float64       `json:"total" bson:"total"`
-	Reviews       []*Review     `json:"reviews" bson:"reviews"`
+	Reviews       []*Reviews    `json:"reviews" bson:"reviews"`
 }
 
 // Products are a slice of Product

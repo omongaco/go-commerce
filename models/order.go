@@ -17,12 +17,13 @@ UserID is the ObjectId of the User that a specific Order belongs to
 
 */
 type Order struct {
-	ID          bson.ObjectId `json:"_id" bson:"_id"`
+	ID          bson.ObjectId `json:"_id,omitempty" bson:"_id,omitempty"`
 	Slug        string        `json:"slug" bson:"slug"`
 	CreatedAt   time.Time     `json:"created_at" bson:"created_at"`
 	UpdatedAt   time.Time     `json:"updated_at" bson:"updated_at"`
-	UserID      *User         `json:"user_id" bson:"user_id"`
 	OrderStatus string        `json:"order_status" bson:"order_status"`
+	Products    []*Products   `json:"products" bson:"products"`
+	UserID      *User         `json:"user_id" bson:"user_id"`
 }
 
 // Orders are a slice of Order
