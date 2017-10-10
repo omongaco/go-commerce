@@ -24,17 +24,17 @@ func NewUserController(s *mgo.Session) *UserController {
 // GetUsers finds all Users
 func (uc UserController) GetUsers(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	c := uc.session.DB("go-commerce").C("users")
-	um := models.Users{}
+	user := models.Users{}
 
-	if err := c.Find(nil).All(&um); err != nil {
-		w.WriteHeader(404)
+	if err := c.Find(nil).All(&user); err != nil {
+		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 
-	uj, _ := json.Marshal(um)
+	uj, _ := json.Marshal(user)
 
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
+	w.WriteHeader(http.StatusOK)
 	fmt.Fprintf(w, "%s", uj)
 }
 
@@ -42,14 +42,14 @@ func (uc UserController) GetUsers(w http.ResponseWriter, r *http.Request, _ http
 func (uc UserController) GetUser(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	c := uc.session.DB("go-commerce").C("users")
 	username := p.ByName("username")
-	um := models.User{}
+	user := models.User{}
 
-	if err := c.Find(bson.M{"username": username}).One(&um); err != nil {
-		w.WriteHeader(404)
+	if err := c.Find(bson.M{"username": username}).One(&user); err != nil {
+		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 
-	uj, _ := json.Marshal(um)
+	uj, _ := json.Marshal(user)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(200)
@@ -59,21 +59,21 @@ func (uc UserController) GetUser(w http.ResponseWriter, r *http.Request, p httpr
 // CreateUser inserts a new User Collection into MongoDB
 func (uc UserController) CreateUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	c := uc.session.DB("go-commerce").C("users")
-	um := models.User{}
+	user := models.User{}
 
-	json.NewDecoder(r.Body).Decode(&um)
+	err := json.NewDecoder(r.Body).Decode(&user)
 
-	um.ID = bson.NewObjectId()
+	user.ID = bson.NewObjectId()
 
-	if err := c.Insert(um); err != nil {
-		w.WriteHeader(404)
+	if err = c.Insert(user); err != nil {
+		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 
-	uj, _ := json.Marshal(um)
+	uj, _ := json.Marshal(user)
 
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(201)
+	w.WriteHeader(http.StatusCreated)
 	fmt.Fprintf(w, "%s", uj)
 }
 
@@ -81,20 +81,16 @@ func (uc UserController) CreateUser(w http.ResponseWriter, r *http.Request, _ ht
 func (uc UserController) UpdateUser(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	c := uc.session.DB("go-commerce").C("users")
 	username := p.ByName("username")
-	um := models.User{}
+	user := models.User{}
 
-	err := json.NewDecoder(r.Body).Decode(&um)
+	err := json.NewDecoder(r.Body).Decode(&user)
 
-	if err != nil {
-		panic(err)
-	}
-
-	if err = c.Update(bson.M{"username": username}, &um); err != nil {
-		w.WriteHeader(404)
+	if err = c.Update(bson.M{"username": username}, &user); err != nil {
+		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 
-	uj, _ := json.Marshal(um)
+	uj, _ := json.Marshal(user)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(200)
@@ -107,9 +103,9 @@ func (uc UserController) DeleteUser(w http.ResponseWriter, r *http.Request, p ht
 	username := p.ByName("username")
 
 	if err := c.Remove(bson.M{"username": username}); err != nil {
-		w.WriteHeader(404)
+		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 
-	w.WriteHeader(204)
+	w.WriteHeader(http.StatusNoContent)
 }

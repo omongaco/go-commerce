@@ -24,31 +24,32 @@ func main() {
 	// h := c.Handler(r)
 
 	// Grab our controllers and get the MongoDB session
-	oc := controllers.NewOrderController(getSession())
-	uc := controllers.NewUserController(getSession())
-	pc := controllers.NewProductController(getSession())
+	orders := controllers.NewOrderController(getSession())
+	users := controllers.NewUserController(getSession())
+	products := controllers.NewProductController(getSession())
 
 	/* API routes/endpoints */
 
 	// Order API Endpoints
-	r.GET("/api/v1/orders", oc.GetOrders)
-	r.GET("/api/v1/orders/:slug", oc.GetOrder)
-	r.POST("/api/v1/orders", oc.CreateOrder)
-	r.PUT("/api/v1/orders/:slug", oc.UpdateOrder)
+	r.GET("/api/v1/orders", orders.GetOrders)
+	r.GET("/api/v1/orders/:slug", orders.GetOrder)
+	r.POST("/api/v1/orders", orders.CreateOrder)
+	r.PUT("/api/v1/orders/:slug", orders.UpdateOrder)
+	// no delete?
 
 	// User API Endpoints
-	r.GET("/api/v1/users", uc.GetUsers)
-	r.GET("/api/v1/users/:username", uc.GetUser)
-	r.POST("/api/v1/users", uc.CreateUser)
-	r.PUT("/api/v1/users/:username", uc.UpdateUser)
-	r.DELETE("/api/v1/users/:username", uc.DeleteUser)
+	r.GET("/api/v1/users", users.GetUsers)
+	r.GET("/api/v1/users/:username", users.GetUser)
+	r.POST("/api/v1/users", users.CreateUser)
+	r.PUT("/api/v1/users/:username", users.UpdateUser)
+	r.DELETE("/api/v1/users/:username", users.DeleteUser)
 
 	// Product API Endpoints
-	r.GET("/api/v1/products", pc.GetProducts)
-	r.GET("/api/v1/products/:slug", pc.GetProduct)
-	r.POST("/api/v1/products", pc.CreateProduct)
-	r.PUT("/api/v1/products/:slug", pc.UpdateProduct)
-	r.DELETE("/api/v1/products/:slug", pc.DeleteProduct)
+	r.GET("/api/v1/products", products.GetProducts)
+	r.GET("/api/v1/products/:slug", products.GetProduct)
+	r.POST("/api/v1/products", products.CreateProduct)
+	r.PUT("/api/v1/products/:slug", products.UpdateProduct)
+	r.DELETE("/api/v1/products/:slug", products.DeleteProduct)
 
 	// Print that the server is listening and start the server on :3000
 	fmt.Printf("Server listening on :3000\n")
